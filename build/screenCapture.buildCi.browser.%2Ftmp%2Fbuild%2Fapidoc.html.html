@@ -1,0 +1,185 @@
+<html><head></head><body><div class="apidocDiv">
+<style>
+/*csslint
+*/
+.apidocDiv {
+    background: #fff;
+    font-family: Arial, Helvetica, sans-serif;
+}
+.apidocDiv a[href] {
+    color: #33f;
+    font-weight: bold;
+    text-decoration: none;
+}
+.apidocDiv a[href]:hover {
+    text-decoration: underline;
+}
+.apidocCodeCommentSpan {
+    background: #bbf;
+    color: #000;
+    display: block;
+}
+.apidocCodeKeywordSpan {
+    color: #d00;
+    font-weight: bold;
+}
+.apidocCodePre {
+    background: #eef;
+    border: 1px solid;
+    color: #777;
+    padding: 5px;
+    white-space: pre-wrap;
+}
+.apidocFooterDiv {
+    margin-top: 20px;
+    text-align: center;
+}
+.apidocModuleLi {
+    margin-top: 10px;
+}
+.apidocSectionDiv {
+    border-top: 1px solid;
+    margin-top: 20px;
+}
+.apidocSignatureSpan {
+    color: #777;
+    font-weight: bold;
+}
+</style>
+<h1>api documentation for
+    <a href="https://github.com/fastest963/require-reload">require-reload (v0.2.2)</a>
+</h1>
+<h4>Reload a require'd module/file. Useful for hot-reloading classes.</h4>
+<div class="apidocSectionDiv"><a href="#apidoc.tableOfContents" id="apidoc.tableOfContents"><h1>table of contents</h1></a><ol>
+
+    <li class="apidocModuleLi"><a href="#apidoc.module.require-reload">module require-reload</a><ol>
+
+        <li>
+
+            <a class="apidocElementLiA" href="#apidoc.element.require-reload.require-reload">
+            function <span class="apidocSignatureSpan"></span>require-reload
+            <span class="apidocSignatureSpan">(name, ctx)</span>
+            </a>
+
+        </li>
+
+        <li>
+
+            <a class="apidocElementLiA" href="#apidoc.element.require-reload.emptyCache">
+            function <span class="apidocSignatureSpan">require-reload.</span>emptyCache
+            <span class="apidocSignatureSpan">(context)</span>
+            </a>
+
+        </li>
+
+        <li>
+
+            <a class="apidocElementLiA" href="#apidoc.element.require-reload.resolve">
+            function <span class="apidocSignatureSpan">require-reload.</span>resolve
+            <span class="apidocSignatureSpan">(req, context)</span>
+            </a>
+
+        </li>
+
+    </ol></li>
+
+</ol></div>
+
+<div class="apidocSectionDiv">
+<h1><a href="#apidoc.module.require-reload" id="apidoc.module.require-reload">module require-reload</a></h1>
+
+
+    <h2>
+        <a href="#apidoc.element.require-reload.require-reload" id="apidoc.element.require-reload.require-reload">
+        function <span class="apidocSignatureSpan"></span>require-reload
+        <span class="apidocSignatureSpan">(name, ctx)</span>
+        </a>
+    </h2>
+    <ul>
+    <li>description and source-code<pre class="apidocCodePre">function reload(name, ctx) {
+    //detect if they did require('require-reload')(require)
+    if (typeof name === 'function' &amp;&amp; typeof name.cache === 'object') {
+        var func = reloadCtx.bind(null, name);
+        func.resolve = name.resolve;
+        func.emptyCache = function() {
+            for (var id in name.cache) {
+                delete name.cache[id];
+            }
+        };
+        return func;
+    }
+    if (ctx !== undefined) {
+        return reloadCtx(ctx, name);
+    }
+    if (module.filename === undefined) {
+        throw new Error("Cannot override module.filename since it isn't used anymore. Please upgrade require-reload!");
+    }
+    //no context means we must fallback to one of these hacks
+    //return reloadCtx(require, name); //this only works if we hacked the filename at the top
+    return reloadParent(name);
+}</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    </ul>
+
+
+
+    <h2>
+        <a href="#apidoc.element.require-reload.emptyCache" id="apidoc.element.require-reload.emptyCache">
+        function <span class="apidocSignatureSpan">require-reload.</span>emptyCache
+        <span class="apidocSignatureSpan">(context)</span>
+        </a>
+    </h2>
+    <ul>
+    <li>description and source-code<pre class="apidocCodePre">emptyCache = function (context) {
+    var cache = context ? context.cache : parent.constructor._cache;
+    for (var id in cache) {
+        delete cache[id];
+    }
+}</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    </ul>
+
+
+
+    <h2>
+        <a href="#apidoc.element.require-reload.resolve" id="apidoc.element.require-reload.resolve">
+        function <span class="apidocSignatureSpan">require-reload.</span>resolve
+        <span class="apidocSignatureSpan">(req, context)</span>
+        </a>
+    </h2>
+    <ul>
+    <li>description and source-code<pre class="apidocCodePre">resolve = function (req, context) {
+    if (context !== undefined) {
+        return context.resolve(req);
+    }
+    return parent.constructor._resolveFilename(req, parent);
+}</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+
+var parent = module.parent;
+//replace ALL of our paths with the parents ones (disabling this hack for now)
+//module.paths.splice.apply(module.paths, [0, module.paths.length].concat(parent.paths));
+//module.filename = parent.filename;
+
+function reloadCtx(require, name) {
+var id = require.<span class="apidocCodeKeywordSpan">resolve</span>(name),
+    oldCache = require.cache[id];
+delete require.cache[id];
+try {
+    return require(id);
+} catch (e) {
+    if (oldCache !== undefined) {
+        require.cache[id] = oldCache; //restore the old cache since the new failed
+...</pre></li>
+    </ul>
+
+
+</div>
+
+<div class="apidocFooterDiv">
+    [ this document was created with
+    <a href="https://github.com/kaizhu256/node-utility2" target="_blank">utility2</a>
+    ]
+</div>
+</div>
+</body></html>
